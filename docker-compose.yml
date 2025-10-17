@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: myapp_development
+      MYSQL_USER: rails
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  web:
+    build: .
+    ports:
+      - "3001:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: rails
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: myapp_development
+    volumes:
+      - rails_storage:/rails/storage
+    command: ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+
+volumes:
+  mysql_data:
+  rails_storage:

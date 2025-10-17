@@ -72,4 +72,11 @@ Rails.application.configure do
 
   # Allow connections to local server on cloud IDE.
   config.hosts.clear
+  
+  # Set log level to debug to see all debug messages
+  config.log_level = :debug
+  
+  # Ensure logs are not buffered
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger.level = Logger::DEBUG
 end
